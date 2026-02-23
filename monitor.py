@@ -42,10 +42,11 @@ async def check_site():
 
 async def main_loop():
     global last_state
-    while True:
-        try:
-            print("Checking site...")
-            options = await check_site()
+while True:
+    try:
+        print("Checking site... page load + dropdown select")
+        options = await check_site()
+        print("Current options:", options)
             state = set(options)
 
             trigger_1 = "Long-stay visa (D-visa) application" in state
