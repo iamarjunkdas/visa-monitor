@@ -28,15 +28,29 @@ def send_email(subject, body):
 
 async def check_site():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"])
+        browser = await p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-dev-shm-usage"]
+        )
         page = await browser.new_page()
-        await page.goto(URL, timeout=60000)
-        await page.select_option("select[name='representation']", label=TARGET_REP)
-        await page.wait_for_timeout(2500)
+        await page.goto(URL, wait_until="networkidle", timeout=60000)
+
+        # Wait for dropdown to exist
+        await page.wait_for_selector("select", timeout=60000)
+
+        # Select by visible text instead of name attribute
+        await page.select_option(
+            "select",
+            label=TARGET_REP
+        )
+
+        await page.wait_for_timeout(3000)
+
         options = await page.eval_on_selector_all(
             "select[name='service'] option",
-            "els => els.map(e => e.textContent.strip()).filter(Boolean)"
+            "els => els.map(e => e.textContent.trim()).filter(Boolean)"
         )
+
         await browser.close()
         return options
 
